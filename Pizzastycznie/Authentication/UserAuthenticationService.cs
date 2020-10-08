@@ -1,4 +1,4 @@
-using System;
+using System.Threading.Tasks;
 using Pizzastycznie.Authentication.DTO;
 using Pizzastycznie.Database.DTO;
 using Pizzastycznie.Database.Repositories;
@@ -14,9 +14,9 @@ namespace Pizzastycznie.Authentication
             _userRepository = userRepository;
         }
 
-        public UserRegistrationResult Register(UserRegistrationObject registrationData)
+        public async Task<UserRegistrationResult> RegisterAsync(UserRegistrationObject registrationData)
         {
-            if (_userRepository.SelectUser(registrationData.Email) != null)
+            if (await _userRepository.SelectUserAsync(registrationData.Email) != null)
                 return UserRegistrationResult.UserExists;
 
             //TODO add email and password policy            
@@ -34,16 +34,16 @@ namespace Pizzastycznie.Authentication
                 IsAdmin = false,
             };
 
-            return _userRepository.InsertUser(userObject)
+            return await _userRepository.InsertUserAsync(userObject)
                 ? UserRegistrationResult.Success
                 : UserRegistrationResult.DatabaseError;
         }
 
-        public UserAuthenticationResult Authenticate(UserAuthenticationObject authData)
+        public async Task<UserAuthenticationResult> AuthenticateAsync(UserAuthenticationObject authData)
         {
-            var hashAndSalt = _userRepository.SelectHashAndSalt(authData.Email);
+            var hashAndSalt = await _userRepository.SelectHashAndSaltAsync(authData.Email);
 
-            if (string.IsNullOrEmpty(hashAndSalt.PasswordHash) || string.IsNullOrEmpty(hashAndSalt.Salt))
+            if (string.IsNullOrWhiteSpace(hashAndSalt.PasswordHash) || string.IsNullOrWhiteSpace(hashAndSalt.Salt))
                 return UserAuthenticationResult.InvalidCredentials;
 
             var hashToCheck = PasswordHashHelper.GenerateHash(authData.Password, hashAndSalt.Salt);

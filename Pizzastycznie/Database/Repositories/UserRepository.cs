@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Pizzastycznie.Database.DTO;
@@ -17,7 +18,7 @@ namespace Pizzastycznie.Database.Repositories
             _sqlConn = new MySqlConnection(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
         }
 
-        public bool InsertUser(InsertUserObject userObject)
+        public async Task<bool> InsertUserAsync(InsertUserObject userObject)
         {
             _logger.LogInformation("Preparing sql command to insert user");
 
@@ -29,35 +30,35 @@ namespace Pizzastycznie.Database.Repositories
                 new MySqlParameter {ParameterName = "Email", DbType = DbType.String, Value = userObject.Email},
                 new MySqlParameter {ParameterName = "Name", DbType = DbType.String, Value = userObject.Name},
                 new MySqlParameter {ParameterName = "PasswordHash", DbType = DbType.String, Value = userObject.PasswordHash},
-                new MySqlParameter {ParameterName = "Salt", DbType = DbType.String, Value = userObject.Salt}, 
+                new MySqlParameter {ParameterName = "Salt", DbType = DbType.String, Value = userObject.Salt},
                 new MySqlParameter {ParameterName = "Address", DbType = DbType.String, Value = userObject.Address},
                 new MySqlParameter {ParameterName = "PhoneNumber", DbType = DbType.String, Value = userObject.PhoneNumber},
                 new MySqlParameter {ParameterName = "Admin", DbType = DbType.Boolean, Value = userObject.IsAdmin},
             });
 
-            bool insertSuccessful;
+            bool result;
             try
             {
                 _logger.LogInformation("Inserting user into database");
-                _sqlConn.Open();
-                sqlCmd.ExecuteNonQuery();
-                insertSuccessful = true;
+                await _sqlConn.OpenAsync();
+                await sqlCmd.ExecuteNonQueryAsync();
+                result = true;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Exception while inserting user: {ex.Message}");
-                insertSuccessful = false;
+                result = false;
             }
             finally
             {
                 if (_sqlConn.State == ConnectionState.Open)
-                    _sqlConn.Close();
+                    await _sqlConn.CloseAsync();
             }
 
-            return insertSuccessful;
+            return result;
         }
 
-        public SelectUserObject SelectUser(string email)
+        public async Task<SelectUserObject> SelectUserAsync(string email)
         {
             _logger.LogInformation("Preparing sql command to select user");
 
@@ -71,10 +72,10 @@ namespace Pizzastycznie.Database.Repositories
             try
             {
                 _logger.LogInformation("Selecting user from database");
-                _sqlConn.Open();
+                await _sqlConn.OpenAsync();
 
-                using var sqlReader = sqlCmd.ExecuteReader();
-                while (sqlReader.Read())
+                using var sqlReader = await sqlCmd.ExecuteReaderAsync();
+                while (await sqlReader.ReadAsync())
                 {
                     result = new SelectUserObject
                     {
@@ -93,13 +94,13 @@ namespace Pizzastycznie.Database.Repositories
             finally
             {
                 if (_sqlConn.State == ConnectionState.Open)
-                    _sqlConn.Close();
+                    await _sqlConn.CloseAsync();
             }
 
             return result;
         }
 
-        public HashAndSaltObject SelectHashAndSalt(string email)
+        public async Task<HashAndSaltObject> SelectHashAndSaltAsync(string email)
         {
             _logger.LogInformation("Preparing sql command to select hash and salt");
 
@@ -113,10 +114,10 @@ namespace Pizzastycznie.Database.Repositories
             try
             {
                 _logger.LogInformation("Selecting hash and salt from database");
-                _sqlConn.Open();
+                await _sqlConn.OpenAsync();
 
-                using var sqlReader = sqlCmd.ExecuteReader();
-                while (sqlReader.Read())
+                using var sqlReader = await sqlCmd.ExecuteReaderAsync();
+                while (await sqlReader.ReadAsync())
                 {
                     result.PasswordHash = sqlReader.GetString("password_hash");
                     result.Salt = sqlReader.GetString("salt");
@@ -129,7 +130,7 @@ namespace Pizzastycznie.Database.Repositories
             finally
             {
                 if (_sqlConn.State == ConnectionState.Open)
-                    _sqlConn.Close();
+                    await _sqlConn.CloseAsync();
             }
 
             return result;

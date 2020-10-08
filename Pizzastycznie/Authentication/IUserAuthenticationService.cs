@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Pizzastycznie.Authentication.DTO;
 
 namespace Pizzastycznie.Authentication
 {
     public interface IUserAuthenticationService
     {
-        public UserRegistrationResult Register(UserRegistrationObject userAuthentication);
-        public UserAuthenticationResult Authenticate(UserAuthenticationObject authData);
+        public Task<UserRegistrationResult> RegisterAsync(UserRegistrationObject userAuthentication);
+        public Task<UserAuthenticationResult> AuthenticateAsync(UserAuthenticationObject authData);
     }
 }

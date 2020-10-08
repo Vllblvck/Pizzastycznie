@@ -8,8 +8,12 @@ namespace Pizzastycznie.Authentication
     {
         public static string GenerateHash(string password, string salt)
         {
-            using var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
+            byte[] hashedBytes;
+
+            using (var sha256 = SHA256.Create())
+            {
+                hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
+            }
 
             return BitConverter.ToString(hashedBytes).Replace("-", "", StringComparison.InvariantCulture).ToLower();
         }
@@ -17,8 +21,11 @@ namespace Pizzastycznie.Authentication
         public static string GenerateSalt()
         {
             var bytes = new byte[128 / 8];
-            using var keyGenerator = RandomNumberGenerator.Create();
-            keyGenerator.GetBytes(bytes);
+
+            using (var keyGenerator = RandomNumberGenerator.Create())
+            {
+                keyGenerator.GetBytes(bytes);
+            }
 
             return BitConverter.ToString(bytes).Replace("-", "", StringComparison.InvariantCulture).ToLower();
         }

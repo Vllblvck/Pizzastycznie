@@ -1,11 +1,12 @@
+using System.Threading.Tasks;
 using Pizzastycznie.Database.DTO;
 
 namespace Pizzastycznie.Database.Repositories
 {
     public interface IUserRepository
     {
-        public bool InsertUser(InsertUserObject userObject);
-        public SelectUserObject SelectUser(string email);
-        public HashAndSaltObject SelectHashAndSalt(string email);
+        public Task<bool> InsertUserAsync(InsertUserObject userObject);
+        public Task<SelectUserObject> SelectUserAsync(string email);
+        public Task<HashAndSaltObject> SelectHashAndSaltAsync(string email);
     }
 }

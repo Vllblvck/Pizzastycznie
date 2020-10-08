@@ -23,7 +23,8 @@ namespace Pizzastycznie.Authentication
 
             var token = new JwtSecurityToken(
                 new JwtHeader(new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secure key")),
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECURITY_KEY"))),
                     SecurityAlgorithms.HmacSha256)), new JwtPayload(claims));
 
             return new UserAuthenticationResponseObject

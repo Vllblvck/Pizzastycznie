@@ -1,4 +1,5 @@
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pizzastycznie.Authentication;
@@ -6,7 +7,8 @@ using Pizzastycznie.Authentication.DTO;
 
 namespace Pizzastycznie.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiController]
+    [Route("api/[controller]/[action]")]
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
@@ -19,12 +21,11 @@ namespace Pizzastycznie.Controllers
         }
 
         [HttpPost]
-        [Route(nameof(Register))]
-        public ActionResult Register([FromBody] UserRegistrationObject registrationData)
+        public async Task<ActionResult> Register([FromBody] UserRegistrationObject registrationData)
         {
             _logger.LogInformation("Processing user registration");
 
-            var registrationResult = _authService.Register(registrationData);
+            var registrationResult = await _authService.RegisterAsync(registrationData);
 
             _logger.LogInformation("Sending registration response");
 
@@ -41,10 +42,9 @@ namespace Pizzastycznie.Controllers
         }
 
         [HttpPost]
-        [Route(nameof(Authenticate))]
-        public ActionResult<UserAuthenticationResponseObject> Authenticate([FromBody] UserAuthenticationObject authData)
+        public async Task<ActionResult<UserAuthenticationResponseObject>> Authenticate([FromBody] UserAuthenticationObject authData)
         {
-            var authResult = _authService.Authenticate(authData);
+            var authResult = await _authService.AuthenticateAsync(authData);
 
             return authResult switch
             {
