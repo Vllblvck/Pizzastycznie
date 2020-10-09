@@ -9,10 +9,10 @@ namespace Pizzastycznie.Database.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ILogger<UserRepository> _logger;
+        private readonly ILogger<IUserRepository> _logger;
         private readonly MySqlConnection _sqlConn;
 
-        public UserRepository(ILogger<UserRepository> logger)
+        public UserRepository(ILogger<IUserRepository> logger)
         {
             _logger = logger;
             _sqlConn = new MySqlConnection(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
@@ -74,7 +74,7 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Selecting user from database");
                 await _sqlConn.OpenAsync();
 
-                using var sqlReader = await sqlCmd.ExecuteReaderAsync();
+                await using var sqlReader = await sqlCmd.ExecuteReaderAsync();
                 while (await sqlReader.ReadAsync())
                 {
                     result = new SelectUserObject
@@ -116,7 +116,7 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Selecting hash and salt from database");
                 await _sqlConn.OpenAsync();
 
-                using var sqlReader = await sqlCmd.ExecuteReaderAsync();
+                await using var sqlReader = await sqlCmd.ExecuteReaderAsync();
                 while (await sqlReader.ReadAsync())
                 {
                     result.PasswordHash = sqlReader.GetString("password_hash");

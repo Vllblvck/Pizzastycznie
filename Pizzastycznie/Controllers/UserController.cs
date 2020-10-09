@@ -44,7 +44,11 @@ namespace Pizzastycznie.Controllers
         [HttpPost]
         public async Task<ActionResult<UserAuthenticationResponseObject>> Authenticate([FromBody] UserAuthenticationObject authData)
         {
+            _logger.LogInformation("Processing user authentication");
+            
             var authResult = await _authService.AuthenticateAsync(authData);
+            
+            _logger.LogInformation("Sending authentication response");
 
             return authResult switch
             {
