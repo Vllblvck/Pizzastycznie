@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Pizzastycznie.Database.DTO;
 
-namespace Pizzastycznie.Database.Repositories
+namespace Pizzastycznie.Database.Repositories.Interfaces
 {
     public interface IFoodRepository
     {

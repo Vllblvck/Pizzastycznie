@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Pizzastycznie.Authentication;
 using Pizzastycznie.Database.Repositories;
+using Pizzastycznie.Database.Repositories.Interfaces;
 
 namespace Pizzastycznie
 {
@@ -38,6 +39,7 @@ namespace Pizzastycznie
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             services.AddScoped<IFoodRepository, FoodRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddControllers();
         }
 

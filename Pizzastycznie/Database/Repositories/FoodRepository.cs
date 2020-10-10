@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Pizzastycznie.Database.DTO;
+using Pizzastycznie.Database.Repositories.Interfaces;
 
 namespace Pizzastycznie.Database.Repositories
 {
@@ -30,7 +31,6 @@ namespace Pizzastycznie.Database.Repositories
             {
                 await _sqlConn.OpenAsync();
 
-                // Inserts food
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
                 sqlCmd.CommandText = "InsertFood";
@@ -44,7 +44,6 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Inserting food into database");
                 await sqlCmd.ExecuteNonQueryAsync();
 
-                //Inserts food additives
                 if (food.Additives != null)
                 {
                     sqlCmd.CommandText = "InsertFoodAdditive";

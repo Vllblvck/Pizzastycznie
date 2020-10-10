@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Pizzastycznie.Database.DTO;
+using Pizzastycznie.Database.Repositories.Interfaces;
 
 namespace Pizzastycznie.Database.Repositories
 {

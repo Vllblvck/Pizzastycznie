@@ -5,18 +5,19 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Pizzastycznie.Authentication.DTO;
+using Pizzastycznie.Database.DTO;
 
 namespace Pizzastycznie.Authentication
 {
     public static class TokenGenerator
     {
-        public static UserAuthenticationResponseObject GenerateToken(string email)
+        public static string GenerateToken(SelectUserObject user, DateTimeOffset expirationTime)
         {
-            var expirationTime = new DateTimeOffset(DateTime.Now).AddHours(1);
-
+            var userRole = user.IsAdmin ? UserRole.Admin : UserRole.User;
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Role, userRole),
                 new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp, expirationTime.ToUnixTimeSeconds().ToString())
             };
@@ -27,12 +28,7 @@ namespace Pizzastycznie.Authentication
                         Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECURITY_KEY"))),
                     SecurityAlgorithms.HmacSha256)), new JwtPayload(claims));
 
-            return new UserAuthenticationResponseObject
-            {
-                Email = email,
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpirationDate = expirationTime.ToString()
-            };
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

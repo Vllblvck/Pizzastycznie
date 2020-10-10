@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS Orders
     id               BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id          BIGINT UNSIGNED NOT NULL,
     order_comments   NVARCHAR(150),
-    order_date       DATETIME        NOT NULL,
+    status_date      DATETIME        NOT NULL,
     order_status     NVARCHAR(15)    NOT NULL,
     customer_phone   VARCHAR(15)     NOT NULL,
     delivery_address NVARCHAR(120)   NOT NULL,

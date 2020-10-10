@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Pizzastycznie.Authentication;
+using Pizzastycznie.Authentication.DTO;
 using Pizzastycznie.Database.DTO;
-using Pizzastycznie.Database.Repositories;
+using Pizzastycznie.Database.Repositories.Interfaces;
 
 namespace Pizzastycznie.Controllers
 {
@@ -23,15 +25,15 @@ namespace Pizzastycznie.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = UserRole.Admin)]
         public async Task<ActionResult> Add([FromBody] Food food)
         {
-            _logger.LogInformation("Inserting food to database");
+            _logger.LogInformation("Checking if user is admin");
 
+            _logger.LogInformation("Inserting food to database");
             var result = await _foodRepository.InsertFoodAsync(food);
 
             _logger.LogInformation("Sending insert food result");
-
             return result switch
             {
                 true => StatusCode((int) HttpStatusCode.Created),
@@ -47,7 +49,7 @@ namespace Pizzastycznie.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = UserRole.Admin)]
         public async Task<ActionResult> Delete(string foodName)
         {
             _logger.LogInformation("Deleting food from database");

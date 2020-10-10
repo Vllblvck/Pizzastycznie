@@ -6,6 +6,6 @@ namespace Pizzastycznie.Authentication
     public interface IUserAuthenticationService
     {
         public Task<UserRegistrationResult> RegisterAsync(UserRegistrationObject userAuthentication);
-        public Task<UserAuthenticationResult> AuthenticateAsync(UserAuthenticationObject authData);
+        public Task<UserAuthenticationResponseObject> AuthenticateAsync(UserAuthenticationObject authData);
     }
 }
