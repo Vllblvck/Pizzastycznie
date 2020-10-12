@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Pizzastycznie.Authentication;
 using Pizzastycznie.Authentication.DTO;
 using Pizzastycznie.Database.DTO;
 using Pizzastycznie.Database.Repositories.Interfaces;
@@ -28,8 +27,6 @@ namespace Pizzastycznie.Controllers
         [Authorize(Roles = UserRole.Admin)]
         public async Task<ActionResult> Add([FromBody] Food food)
         {
-            _logger.LogInformation("Checking if user is admin");
-
             _logger.LogInformation("Inserting food to database");
             var result = await _foodRepository.InsertFoodAsync(food);
 

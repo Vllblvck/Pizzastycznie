@@ -57,6 +57,7 @@ namespace Pizzastycznie.Authentication
             {
                 Token = TokenGenerator.GenerateToken(user, _tokenExpirationDate),
                 ExpirationDate = _tokenExpirationDate.ToString(),
+                UserId = user.Id,
                 Email = user.Email,
                 Name = user.Name,
                 Address = user.Address,

@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Pizzastycznie.Database.DTO;
+using Pizzastycznie.Database.DTO.Enums;
 using Pizzastycznie.Database.Repositories.Interfaces;
 
 namespace Pizzastycznie.Database.Repositories
 {
-    //TODO Refactor!!!
     public class FoodRepository : IFoodRepository
     {
         private readonly ILogger<IFoodRepository> _logger;
@@ -26,10 +26,12 @@ namespace Pizzastycznie.Database.Repositories
         {
             _logger.LogInformation("Preparing sql command to insert food");
 
+            MySqlTransaction transaction = null;
             bool result;
             try
             {
                 await _sqlConn.OpenAsync();
+                transaction = await _sqlConn.BeginTransactionAsync();
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
@@ -66,11 +68,16 @@ namespace Pizzastycznie.Database.Repositories
                     }
                 }
 
+                await transaction.CommitAsync();
                 result = true;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Exception while inserting food into database: {ex.Message}");
+
+                if (transaction != null)
+                    await transaction.RollbackAsync();
+
                 result = false;
             }
             finally
@@ -84,16 +91,18 @@ namespace Pizzastycznie.Database.Repositories
 
         public async Task<IEnumerable<Food>> SelectAllFoodAsync()
         {
+            MySqlTransaction transaction = null;
             var result = new List<Food>();
             try
             {
+                await _sqlConn.OpenAsync();
+                transaction = await _sqlConn.BeginTransactionAsync();
+
                 _logger.LogInformation("Preparing sql command to select food");
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
                 sqlCmd.CommandText = "SelectAllFood";
-
-                await _sqlConn.OpenAsync();
 
                 _logger.LogInformation("Selecting food from database");
 
@@ -136,11 +145,15 @@ namespace Pizzastycznie.Database.Repositories
                     }
 
                     food.Additives = additives;
+                    await transaction.CommitAsync();
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Exception while selecting food from database: {ex.Message}");
+
+                if (transaction != null)
+                    await transaction.RollbackAsync();
             }
             finally
             {
@@ -153,19 +166,19 @@ namespace Pizzastycznie.Database.Repositories
 
         public async Task<bool> DeleteFoodAsync(string foodName)
         {
-            _logger.LogInformation("Preparing sql command to delete food");
-            
-            var sqlCmd = _sqlConn.CreateCommand();
-            sqlCmd.CommandType = CommandType.StoredProcedure;
-            sqlCmd.CommandText = "DeleteFood";
-            sqlCmd.Parameters.Add(new MySqlParameter
-                {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
-
             bool result;
             try
             {
+                _logger.LogInformation("Preparing sql command to delete food");
+
+                var sqlCmd = _sqlConn.CreateCommand();
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.CommandText = "DeleteFood";
+                sqlCmd.Parameters.Add(new MySqlParameter
+                    {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
+
                 _logger.LogInformation("Deleting food from database");
-                
+
                 await _sqlConn.OpenAsync();
                 await sqlCmd.ExecuteNonQueryAsync();
                 result = true;

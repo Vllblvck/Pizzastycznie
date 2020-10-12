@@ -1,4 +1,4 @@
-namespace Pizzastycznie.Database.DTO
+namespace Pizzastycznie.Database.DTO.Enums
 {
     public enum PaymentMethod
     {

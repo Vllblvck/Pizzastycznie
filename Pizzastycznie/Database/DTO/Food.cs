@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pizzastycznie.Database.DTO.Enums;
 
 namespace Pizzastycznie.Database.DTO
 {

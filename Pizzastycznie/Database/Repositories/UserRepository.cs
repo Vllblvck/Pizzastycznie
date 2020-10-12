@@ -21,26 +21,29 @@ namespace Pizzastycznie.Database.Repositories
 
         public async Task<bool> InsertUserAsync(InsertUserObject userObject)
         {
-            _logger.LogInformation("Preparing sql command to insert user");
-
-            var sqlCmd = _sqlConn.CreateCommand();
-            sqlCmd.CommandType = CommandType.StoredProcedure;
-            sqlCmd.CommandText = "InsertUser";
-            sqlCmd.Parameters.AddRange(new[]
-            {
-                new MySqlParameter {ParameterName = "Email", DbType = DbType.String, Value = userObject.Email},
-                new MySqlParameter {ParameterName = "Name", DbType = DbType.String, Value = userObject.Name},
-                new MySqlParameter {ParameterName = "PasswordHash", DbType = DbType.String, Value = userObject.PasswordHash},
-                new MySqlParameter {ParameterName = "Salt", DbType = DbType.String, Value = userObject.Salt},
-                new MySqlParameter {ParameterName = "Address", DbType = DbType.String, Value = userObject.Address},
-                new MySqlParameter {ParameterName = "PhoneNumber", DbType = DbType.String, Value = userObject.PhoneNumber},
-                new MySqlParameter {ParameterName = "Admin", DbType = DbType.Boolean, Value = userObject.IsAdmin},
-            });
-
             bool result;
             try
             {
+                _logger.LogInformation("Preparing sql command to insert user");
+
+                var sqlCmd = _sqlConn.CreateCommand();
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.CommandText = "InsertUser";
+                sqlCmd.Parameters.AddRange(new[]
+                {
+                    new MySqlParameter {ParameterName = "Email", DbType = DbType.String, Value = userObject.Email},
+                    new MySqlParameter {ParameterName = "Name", DbType = DbType.String, Value = userObject.Name},
+                    new MySqlParameter
+                        {ParameterName = "PasswordHash", DbType = DbType.String, Value = userObject.PasswordHash},
+                    new MySqlParameter {ParameterName = "Salt", DbType = DbType.String, Value = userObject.Salt},
+                    new MySqlParameter {ParameterName = "Address", DbType = DbType.String, Value = userObject.Address},
+                    new MySqlParameter
+                        {ParameterName = "PhoneNumber", DbType = DbType.String, Value = userObject.PhoneNumber},
+                    new MySqlParameter {ParameterName = "Admin", DbType = DbType.Boolean, Value = userObject.IsAdmin},
+                });
+
                 _logger.LogInformation("Inserting user into database");
+
                 await _sqlConn.OpenAsync();
                 await sqlCmd.ExecuteNonQueryAsync();
                 result = true;
@@ -61,17 +64,17 @@ namespace Pizzastycznie.Database.Repositories
 
         public async Task<SelectUserObject> SelectUserAsync(string email)
         {
-            _logger.LogInformation("Preparing sql command to select user");
-
-            var sqlCmd = _sqlConn.CreateCommand();
-            sqlCmd.CommandType = CommandType.StoredProcedure;
-            sqlCmd.CommandText = "SelectUser";
-            sqlCmd.Parameters.Add(new MySqlParameter
-                {ParameterName = "Email", DbType = DbType.String, Value = email});
-
             SelectUserObject result = null;
             try
             {
+                _logger.LogInformation("Preparing sql command to select user");
+
+                var sqlCmd = _sqlConn.CreateCommand();
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.CommandText = "SelectUser";
+                sqlCmd.Parameters.Add(new MySqlParameter
+                    {ParameterName = "Email", DbType = DbType.String, Value = email});
+
                 _logger.LogInformation("Selecting user from database");
                 await _sqlConn.OpenAsync();
 
@@ -80,6 +83,7 @@ namespace Pizzastycznie.Database.Repositories
                 {
                     result = new SelectUserObject
                     {
+                        Id = sqlReader.GetString("id"),
                         Email = sqlReader.GetString("email"),
                         Name = sqlReader.GetString("name"),
                         Address = sqlReader.GetString("address"),
@@ -103,17 +107,17 @@ namespace Pizzastycznie.Database.Repositories
 
         public async Task<HashAndSaltObject> SelectHashAndSaltAsync(string email)
         {
-            _logger.LogInformation("Preparing sql command to select hash and salt");
-
-            var sqlCmd = _sqlConn.CreateCommand();
-            sqlCmd.CommandType = CommandType.StoredProcedure;
-            sqlCmd.CommandText = "SelectHashAndSalt";
-            sqlCmd.Parameters.Add(new MySqlParameter
-                {ParameterName = "Email", DbType = DbType.String, Value = email});
-
             var result = new HashAndSaltObject();
             try
             {
+                _logger.LogInformation("Preparing sql command to select hash and salt");
+
+                var sqlCmd = _sqlConn.CreateCommand();
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.CommandText = "SelectHashAndSalt";
+                sqlCmd.Parameters.Add(new MySqlParameter
+                    {ParameterName = "Email", DbType = DbType.String, Value = email});
+
                 _logger.LogInformation("Selecting hash and salt from database");
                 await _sqlConn.OpenAsync();
 
