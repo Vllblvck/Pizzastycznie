@@ -149,17 +149,22 @@ namespace Pizzastycznie.Database.Repositories
                 {
                     while (await sqlReader.ReadAsync())
                     {
+                        var commentsOrdinal = sqlReader.GetOrdinal("order_comments");
+
                         result.Add(new Order
                         {
                             Id = sqlReader.GetInt64("id"),
-                            Comments = sqlReader.GetString("order_comments"),
                             StatusDate = sqlReader.GetDateTime("status_date"),
                             Status = sqlReader.GetString("order_status"),
                             CustomerPhone = sqlReader.GetString("customer_phone"),
                             DeliveryAddress = sqlReader.GetString("customer_phone"),
                             PaymentMethod = (PaymentMethod) sqlReader.GetInt32("payment_method"),
                             TotalPrice = sqlReader.GetDecimal("total_price"),
-                            SelfPickup = sqlReader.GetBoolean("self_pickup")
+                            SelfPickup = sqlReader.GetBoolean("self_pickup"),
+
+                            Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
+                                ? null
+                                : sqlReader.GetString("order_comments")
                         });
                     }
                 }
@@ -240,17 +245,22 @@ namespace Pizzastycznie.Database.Repositories
                 {
                     while (await sqlReader.ReadAsync())
                     {
+                        var commentsOrdinal = sqlReader.GetOrdinal("order_comments");
+
                         result.Add(new Order
                         {
                             Id = sqlReader.GetInt64("id"),
-                            Comments = sqlReader.GetString("order_comments"),
                             StatusDate = sqlReader.GetDateTime("status_date"),
                             Status = sqlReader.GetString("order_status"),
                             CustomerPhone = sqlReader.GetString("customer_phone"),
                             DeliveryAddress = sqlReader.GetString("customer_phone"),
                             PaymentMethod = (PaymentMethod) sqlReader.GetInt32("payment_method"),
                             TotalPrice = sqlReader.GetDecimal("total_price"),
-                            SelfPickup = sqlReader.GetBoolean("self_pickup")
+                            SelfPickup = sqlReader.GetBoolean("self_pickup"),
+
+                            Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
+                                ? null
+                                : sqlReader.GetString("order_comments")
                         });
                     }
                 }

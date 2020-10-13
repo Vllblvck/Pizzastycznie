@@ -35,7 +35,9 @@ namespace Pizzastycznie.Controllers
                 UserRegistrationResult.UserExists => BadRequest(
                     $"User with email {registrationData.Email} already exists"),
                 UserRegistrationResult.BadEmail => BadRequest("Invalid email address"),
-                UserRegistrationResult.BadPassword => BadRequest("Password requirements not met"),
+                UserRegistrationResult.BadPassword => BadRequest(
+                    "Password requirements not met (minimum 8 characters, 1 upper, 1 special, 1 number"),
+                UserRegistrationResult.BadName => BadRequest("Name must contain letters only"),
                 UserRegistrationResult.DatabaseError => StatusCode((int) HttpStatusCode.InternalServerError),
                 _ => StatusCode((int) HttpStatusCode.InternalServerError)
             };

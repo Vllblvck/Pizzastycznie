@@ -5,7 +5,8 @@ namespace Pizzastycznie.Authentication.DTO
         UserExists = 0,
         BadEmail = 1,
         BadPassword = 2,
-        Success = 3,
-        DatabaseError = 4,
+        BadName = 3,
+        Success = 4,
+        DatabaseError = 5,
     }
 }

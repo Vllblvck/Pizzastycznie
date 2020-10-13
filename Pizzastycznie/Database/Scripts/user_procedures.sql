@@ -5,9 +5,9 @@ BEGIN
     VALUES (Email, Name, PasswordHash, Salt, Address, PhoneNumber, Admin);
 END;
 
-CREATE PROCEDURE SelectUser (Email VARCHAR(150))
+CREATE PROCEDURE SelectUser (UserEmail VARCHAR(150))
 BEGIN
-    SELECT * FROM Users WHERE email = Email;
+    SELECT * FROM Users WHERE email = UserEmail;
 END;
 
 CREATE PROCEDURE SelectHashAndSalt (Email VARCHAR(150))

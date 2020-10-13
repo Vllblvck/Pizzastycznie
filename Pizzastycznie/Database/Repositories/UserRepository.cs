@@ -67,28 +67,35 @@ namespace Pizzastycznie.Database.Repositories
             SelectUserObject result = null;
             try
             {
+                await _sqlConn.OpenAsync();
+
                 _logger.LogInformation("Preparing sql command to select user");
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
                 sqlCmd.CommandText = "SelectUser";
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "Email", DbType = DbType.String, Value = email});
+                    {ParameterName = "UserEmail", DbType = DbType.String, Value = email});
 
                 _logger.LogInformation("Selecting user from database");
-                await _sqlConn.OpenAsync();
 
                 await using var sqlReader = await sqlCmd.ExecuteReaderAsync();
                 while (await sqlReader.ReadAsync())
                 {
+                    var addressOrdinal = sqlReader.GetOrdinal("address");
+                    var phoneNumberOrdinal = sqlReader.GetOrdinal("phone_number");
+
                     result = new SelectUserObject
                     {
                         Id = sqlReader.GetString("id"),
                         Email = sqlReader.GetString("email"),
                         Name = sqlReader.GetString("name"),
-                        Address = sqlReader.GetString("address"),
-                        PhoneNumber = sqlReader.GetString("phone_number"),
-                        IsAdmin = sqlReader.GetBoolean("admin")
+                        IsAdmin = sqlReader.GetBoolean("admin"),
+                        
+                        Address = await sqlReader.IsDBNullAsync(addressOrdinal)
+                            ? null : sqlReader.GetString("address"),
+                        PhoneNumber = await sqlReader.IsDBNullAsync(phoneNumberOrdinal)
+                            ? null : sqlReader.GetString("phone_number")
                     };
                 }
             }

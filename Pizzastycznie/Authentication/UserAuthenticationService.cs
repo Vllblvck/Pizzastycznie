@@ -22,7 +22,14 @@ namespace Pizzastycznie.Authentication
             if (await _userRepository.SelectUserAsync(registrationData.Email) != null)
                 return UserRegistrationResult.UserExists;
 
-            //TODO add email and password policy            
+            if (!CredentialsValidator.IsValidEmail(registrationData.Email))
+                return UserRegistrationResult.BadEmail;
+
+            if (!CredentialsValidator.IsValidPassword(registrationData.Password))
+                return UserRegistrationResult.BadPassword;
+
+            if (!CredentialsValidator.IsValidName(registrationData.Name))
+                return UserRegistrationResult.BadName;
 
             var salt = PasswordHashHelper.GenerateSalt();
             var passwordHash = PasswordHashHelper.GenerateHash(registrationData.Password, salt);
