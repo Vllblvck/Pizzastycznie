@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pizzastycznie", "Pizzastycznie\Pizzastycznie.csproj", "{69C88EDD-07BF-4230-AEE2-CFFE37D4112C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PizzastycznieFrontend", "PizzastycznieFrontend\PizzastycznieFrontend.csproj", "{5373790E-923E-4669-A91F-BC00641D65DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{69C88EDD-07BF-4230-AEE2-CFFE37D4112C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C88EDD-07BF-4230-AEE2-CFFE37D4112C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C88EDD-07BF-4230-AEE2-CFFE37D4112C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5373790E-923E-4669-A91F-BC00641D65DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5373790E-923E-4669-A91F-BC00641D65DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5373790E-923E-4669-A91F-BC00641D65DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5373790E-923E-4669-A91F-BC00641D65DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
