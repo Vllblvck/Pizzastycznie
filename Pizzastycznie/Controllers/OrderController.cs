@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Pizzastycznie.Authentication.DTO;
 using Pizzastycznie.Database.DTO;
 using Pizzastycznie.Database.Repositories.Interfaces;
+using Pizzastycznie.Mail;
 
 namespace Pizzastycznie.Controllers
 {
@@ -19,50 +19,59 @@ namespace Pizzastycznie.Controllers
     {
         private readonly ILogger<OrderController> _logger;
         private readonly IOrderRepository _orderRepository;
+        private readonly IMailService _mailService;
 
-        public OrderController(ILogger<OrderController> logger, IOrderRepository orderRepository)
+        public OrderController(ILogger<OrderController> logger, IOrderRepository orderRepository,
+            IMailService mailService)
         {
             _logger = logger;
             _orderRepository = orderRepository;
+            _mailService = mailService;
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult> Create([FromBody] Order order)
+        public async Task<IActionResult> Create([FromBody] Order order)
         {
             _logger.LogInformation("Creating order");
             var result = await _orderRepository.InsertOrderAsync(order);
 
-            _logger.LogInformation("Sending response back to client");
+            if (!result) return StatusCode((int) HttpStatusCode.InternalServerError);
 
             //TODO Send email
+            _logger.LogInformation("Extracting user email from token");
+            var userEmail = User.Claims
+                .Where(c => c.Type == ClaimTypes.Name)
+                .Select(c => c.Value)
+                .FirstOrDefault();
 
-            return result switch
-            {
-                true => StatusCode((int) HttpStatusCode.Created),
-                false => StatusCode((int) HttpStatusCode.InternalServerError)
-            };
+            _logger.LogInformation("Sending email to user");
+            await _mailService.SendEmailAsync(userEmail, "", "");
+
+            return StatusCode((int) HttpStatusCode.Created);
         }
 
         [HttpPost]
         [Authorize(Roles = UserRole.Admin)]
-        public async Task ChangeStatus()
+        public async Task Update()
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("Changing order status");
+
+            await _orderRepository.UpdateOrderStatusAsync();
         }
 
         [HttpGet]
         [Authorize(Roles = UserRole.Admin)]
-        public async Task<IEnumerable<Order>> GetAllPending()
+        public async Task<IEnumerable<Order>> Pending()
         {
             _logger.LogInformation("Selecting all pending orders from database");
 
-            return await _orderRepository.SelectAllPendingOrdersAsync();
+            return await _orderRepository.SelectPendingOrdersAsync();
         }
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Order>>> GetAllForUser(string email)
+        public async Task<IActionResult> All(string email)
         {
             _logger.LogInformation("Extracting user email and role from token");
 
@@ -81,7 +90,10 @@ namespace Pizzastycznie.Controllers
                 return Forbid();
 
             _logger.LogInformation("Returning orders history");
-            return new ActionResult<IEnumerable<Order>>(await _orderRepository.SelectAllOrdersForUserAsync(email));
+
+            var result = await _orderRepository.SelectOrdersForUserAsync(email);
+
+            return Ok(result);
         }
     }
 }

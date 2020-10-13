@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS OrderFood
     food_id  BIGINT UNSIGNED NOT NULL,
     amount   INT             NOT NULL,
     CONSTRAINT fk_food_order FOREIGN KEY (order_id) REFERENCES Orders (id) ON DELETE CASCADE,
-    CONSTRAINT fk_food_details FOREIGN KEY (food_id) REFERENCES Food (id)
+    CONSTRAINT fk_food_details FOREIGN KEY (food_id) REFERENCES Food (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS OrderAdditives
@@ -62,5 +62,5 @@ CREATE TABLE IF NOT EXISTS OrderAdditives
     additive_id BIGINT UNSIGNED NOT NULL,
     amount      INT             NOT NULL,
     CONSTRAINT fk_additive_order FOREIGN KEY (order_id) REFERENCES Orders (id) ON DELETE CASCADE,
-    CONSTRAINT fk_additive_details FOREIGN KEY (additive_id) REFERENCES FoodAdditives (id)
+    CONSTRAINT fk_additive_details FOREIGN KEY (additive_id) REFERENCES FoodAdditives (id) ON DELETE CASCADE 
 );

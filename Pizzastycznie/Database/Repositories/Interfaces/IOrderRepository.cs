@@ -4,11 +4,12 @@ using Pizzastycznie.Database.DTO;
 
 namespace Pizzastycznie.Database.Repositories.Interfaces
 {
+    //TODO change bool in Tasks to object or enum
     public interface IOrderRepository
     {
         public Task<bool> InsertOrderAsync(Order order);
-        public Task UpdateOrderStatusAsync();
-        public Task<IEnumerable<Order>> SelectAllPendingOrdersAsync();
-        public Task<IEnumerable<Order>> SelectAllOrdersForUserAsync(string email);
+        public Task<bool> UpdateOrderStatusAsync();
+        public Task<IEnumerable<Order>> SelectPendingOrdersAsync();
+        public Task<IEnumerable<Order>> SelectOrdersForUserAsync(string email);
     }
 }

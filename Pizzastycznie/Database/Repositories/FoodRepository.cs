@@ -145,8 +145,9 @@ namespace Pizzastycznie.Database.Repositories
                     }
 
                     food.Additives = additives;
-                    await transaction.CommitAsync();
                 }
+
+                await transaction.CommitAsync();
             }
             catch (Exception ex)
             {

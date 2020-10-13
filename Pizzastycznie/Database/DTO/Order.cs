@@ -7,6 +7,7 @@ namespace Pizzastycznie.Database.DTO
 {
     public class Order
     {
+        public long Id { get; set; }
         [Required] public long UserId { get; set; }
         public string Comments { get; set; }
         [Required] public string Status { get; set; }
