@@ -27,6 +27,12 @@ namespace Pizzastycznie.Controllers
         [Authorize(Roles = UserRole.Admin)]
         public async Task<ActionResult> Add([FromBody] Food food)
         {
+            _logger.LogInformation("Checking database for duplicate entry error");
+            var duplicate = await _foodRepository.SelectFoodAsync(food.Name);
+
+            if (duplicate != null)
+                return BadRequest("Food with this name already exists");
+            
             _logger.LogInformation("Inserting food to database");
             var result = await _foodRepository.InsertFoodAsync(food);
 

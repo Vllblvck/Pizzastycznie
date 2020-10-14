@@ -12,6 +12,11 @@ BEGIN
     VALUES (AdditiveName, Price, @food_id);
 END;
 
+CREATE PROCEDURE SelectFood(FoodName NVARCHAR(100))
+BEGIN
+    SELECT * FROM Food WHERE food_name = FoodName;
+END;
+
 CREATE PROCEDURE SelectAllFood()
 BEGIN
     SELECT * FROM Food;

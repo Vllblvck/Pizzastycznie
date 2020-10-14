@@ -7,6 +7,7 @@ using MySql.Data.MySqlClient;
 using Pizzastycznie.Database.DTO;
 using Pizzastycznie.Database.DTO.Enums;
 using Pizzastycznie.Database.Repositories.Interfaces;
+using Ubiety.Dns.Core.Records.NotUsed;
 
 namespace Pizzastycznie.Database.Repositories
 {
@@ -21,7 +22,6 @@ namespace Pizzastycznie.Database.Repositories
             _sqlConn = new MySqlConnection(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
         }
 
-        //TODO Take care of duplicate entry error
         public async Task<bool> InsertFoodAsync(Food food)
         {
             _logger.LogInformation("Preparing sql command to insert food");
@@ -79,6 +79,72 @@ namespace Pizzastycznie.Database.Repositories
                     await transaction.RollbackAsync();
 
                 result = false;
+            }
+            finally
+            {
+                if (_sqlConn.State == ConnectionState.Open)
+                    await _sqlConn.CloseAsync();
+            }
+
+            return result;
+        }
+
+        public async Task<Food> SelectFoodAsync(string foodName)
+        {
+            Food result = null;
+            try
+            {
+                _logger.LogInformation("Opening connection with database");
+                await _sqlConn.OpenAsync();
+
+                _logger.LogInformation("Preparing sql command to select food");
+                var sqlCmd = _sqlConn.CreateCommand();
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.CommandText = "SelectFood";
+                sqlCmd.Parameters.Add(new MySqlParameter
+                    {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
+
+                await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
+                {
+                    while (await sqlReader.ReadAsync())
+                    {
+                        result = new Food
+                        {
+                            Name = sqlReader.GetString("food_name"),
+                            Type = (FoodType) sqlReader.GetInt32("food_type"),
+                            Price = sqlReader.GetDecimal("price"),
+                        };
+                    }
+                }
+
+                sqlCmd.CommandText = "SelectAdditiveForFood";
+                var additives = new List<FoodAdditive>();
+
+                _logger.LogInformation("Preparing sql command to select additives for food");
+
+                sqlCmd.Parameters.Clear();
+                sqlCmd.Parameters.Add(new MySqlParameter
+                    {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
+
+                _logger.LogInformation("Selecting food additives from database");
+
+                await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
+                {
+                    while (await sqlReader.ReadAsync())
+                    {
+                        additives.Add(new FoodAdditive
+                        {
+                            Name = sqlReader.GetString("additive_name"),
+                            Price = sqlReader.GetDecimal("price")
+                        });
+                    }
+                }
+
+                result.Additives = additives;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception while selecting food from database: {ex.Message}");
             }
             finally
             {

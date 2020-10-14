@@ -38,7 +38,6 @@ namespace Pizzastycznie.Controllers
 
             if (!result) return StatusCode((int) HttpStatusCode.InternalServerError);
 
-            //TODO Send email
             _logger.LogInformation("Extracting user email from token");
             var userEmail = User.Claims
                 .Where(c => c.Type == ClaimTypes.Name)
@@ -51,13 +50,19 @@ namespace Pizzastycznie.Controllers
             return StatusCode((int) HttpStatusCode.Created);
         }
 
-        [HttpPost]
+        [HttpPut]
         [Authorize(Roles = UserRole.Admin)]
-        public async Task Update()
+        public async Task<IActionResult> Update(long orderId, string status)
         {
             _logger.LogInformation("Changing order status");
 
-            await _orderRepository.UpdateOrderStatusAsync();
+            var result = await _orderRepository.UpdateOrderStatusAsync(orderId, status);
+
+            return result switch
+            {
+                true => Ok(),
+                false => StatusCode((int) HttpStatusCode.InternalServerError)
+            };
         }
 
         [HttpGet]

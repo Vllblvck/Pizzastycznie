@@ -308,7 +308,7 @@ namespace Pizzastycznie.Database.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Exception while selecting pending orders from database: {ex.Message}");
+                _logger.LogError($"Exception while selecting pending orders from database: {ex.Message}");
 
                 if (transaction != null)
                     await transaction.RollbackAsync();
@@ -317,9 +317,37 @@ namespace Pizzastycznie.Database.Repositories
             return result;
         }
 
-        public async Task<bool> UpdateOrderStatusAsync()
+        public async Task<bool> UpdateOrderStatusAsync(long orderId, string status)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Opening connection with database");
+                await _sqlConn.OpenAsync();
+
+                _logger.LogInformation("Preparing sql command to update order status");
+                var sqlCmd = _sqlConn.CreateCommand();
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.CommandText = "UpdateOrderStatus";
+                sqlCmd.Parameters.AddRange(new[]
+                {
+                    new MySqlParameter {ParameterName = "OrderId", DbType = DbType.Int64, Value = orderId},
+                    new MySqlParameter {ParameterName = "OrderStatus", DbType = DbType.String, Value = status}, 
+                });
+
+                _logger.LogInformation("Updating order status");
+                await sqlCmd.ExecuteNonQueryAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception while updating order status {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                if (_sqlConn.State == ConnectionState.Open)
+                    await _sqlConn.CloseAsync();
+            }
         }
     }
 }

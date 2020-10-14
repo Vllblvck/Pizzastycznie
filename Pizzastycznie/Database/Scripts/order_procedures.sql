@@ -73,3 +73,8 @@ BEGIN
     FROM Orders
     WHERE user_id = @UserId;
 END;
+
+CREATE PROCEDURE UpdateOrderStatus(OrderId BIGINT, OrderStatus NVARCHAR(15))
+BEGIN
+    UPDATE Orders SET order_status = OrderStatus, status_date = NOW() WHERE id = OrderId;
+END;
