@@ -16,7 +16,6 @@ namespace Pizzastycznie.Database.DTO
         [Required] public string DeliveryAddress { get; set; }
         [Required] public PaymentMethod PaymentMethod { get; set; }
         [Required] public decimal TotalPrice { get; set; }
-        [Required] public bool SelfPickup { get; set; }
         [Required] public IEnumerable<OrderFood> OrderFood { get; set; }
         public IEnumerable<OrderAdditive> OrderAdditives { get; set; }
     }

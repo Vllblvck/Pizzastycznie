@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS FoodAdditives
 (
     id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     food_id       BIGINT UNSIGNED      NOT NULL,
-    additive_name NVARCHAR(100) UNIQUE NOT NULL,
+    additive_name NVARCHAR(100)        NOT NULL,
     price         DECIMAL(4, 2)        NOT NULL,
     CONSTRAINT fk_food_id FOREIGN KEY (food_id) REFERENCES Food (id) ON DELETE CASCADE
 );
@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS Orders
     delivery_address NVARCHAR(120)   NOT NULL,
     payment_method   INT             NOT NULL,
     total_price      DECIMAL(4, 2)   NOT NULL,
-    self_pickup      BOOL            NOT NULL,
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE
 );
 

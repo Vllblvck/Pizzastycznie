@@ -40,21 +40,13 @@ namespace Pizzastycznie.Database.Repositories
                 sqlCmd.Parameters.AddRange(new[]
                 {
                     new MySqlParameter {ParameterName = "UserId", DbType = DbType.Int64, Value = order.UserId},
-                    new MySqlParameter
-                        {ParameterName = "OrderComments", DbType = DbType.String, Value = order.Comments},
-                    new MySqlParameter
-                        {ParameterName = "StatusDate", DbType = DbType.DateTime, Value = order.StatusDate},
+                    new MySqlParameter {ParameterName = "OrderComments", DbType = DbType.String, Value = order.Comments},
+                    new MySqlParameter {ParameterName = "StatusDate", DbType = DbType.DateTime, Value = order.StatusDate},
                     new MySqlParameter {ParameterName = "OrderStatus", DbType = DbType.String, Value = order.Status},
-                    new MySqlParameter
-                        {ParameterName = "CustomerPhone", DbType = DbType.String, Value = order.CustomerPhone},
-                    new MySqlParameter
-                        {ParameterName = "DeliveryAddress", DbType = DbType.String, Value = order.DeliveryAddress},
-                    new MySqlParameter
-                        {ParameterName = "PaymentMethod", DbType = DbType.Int32, Value = order.PaymentMethod},
-                    new MySqlParameter
-                        {ParameterName = "TotalPrice", DbType = DbType.Decimal, Value = order.TotalPrice},
-                    new MySqlParameter
-                        {ParameterName = "SelfPickup", DbType = DbType.Boolean, Value = order.SelfPickup},
+                    new MySqlParameter {ParameterName = "CustomerPhone", DbType = DbType.String, Value = order.CustomerPhone},
+                    new MySqlParameter {ParameterName = "DeliveryAddress", DbType = DbType.String, Value = order.DeliveryAddress},
+                    new MySqlParameter {ParameterName = "PaymentMethod", DbType = DbType.Int32, Value = order.PaymentMethod},
+                    new MySqlParameter {ParameterName = "TotalPrice", DbType = DbType.Decimal, Value = order.TotalPrice},
                 });
 
                 _logger.LogInformation("Inserting order into database");
@@ -97,8 +89,7 @@ namespace Pizzastycznie.Database.Repositories
                     sqlCmd.Parameters.AddRange(new[]
                     {
                         new MySqlParameter {ParameterName = "OrderId", DbType = DbType.Int64, Value = orderId},
-                        new MySqlParameter
-                            {ParameterName = "AdditiveName", DbType = DbType.String, Value = additive.Name},
+                        new MySqlParameter {ParameterName = "AdditiveName", DbType = DbType.String, Value = additive.Name},
                         new MySqlParameter {ParameterName = "Amount", DbType = DbType.Int32, Value = additive.Amount}
                     });
 
@@ -160,7 +151,6 @@ namespace Pizzastycznie.Database.Repositories
                             DeliveryAddress = sqlReader.GetString("customer_phone"),
                             PaymentMethod = (PaymentMethod) sqlReader.GetInt32("payment_method"),
                             TotalPrice = sqlReader.GetDecimal("total_price"),
-                            SelfPickup = sqlReader.GetBoolean("self_pickup"),
 
                             Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
                                 ? null
@@ -256,7 +246,6 @@ namespace Pizzastycznie.Database.Repositories
                             DeliveryAddress = sqlReader.GetString("customer_phone"),
                             PaymentMethod = (PaymentMethod) sqlReader.GetInt32("payment_method"),
                             TotalPrice = sqlReader.GetDecimal("total_price"),
-                            SelfPickup = sqlReader.GetBoolean("self_pickup"),
 
                             Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
                                 ? null

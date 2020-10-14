@@ -1,13 +1,17 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PizzastycznieFrontend.ApiHandler.DTO;
 using PizzastycznieFrontend.ApiHandler.DTO.Enums;
+using PizzastycznieFrontend.Authentication;
 
 namespace PizzastycznieFrontend.ApiHandler
 {
@@ -16,12 +20,15 @@ namespace PizzastycznieFrontend.ApiHandler
         private readonly ILogger<ApiHandler> _logger;
         private readonly AppSettings _appSettings;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly IMemoryCache _cache;
 
-        public ApiHandler(ILogger<ApiHandler> logger, IOptions<AppSettings> options, IHttpClientFactory clientFactory)
+        public ApiHandler(ILogger<ApiHandler> logger, IOptions<AppSettings> options, IHttpClientFactory clientFactory,
+            IMemoryCache cache)
         {
             _logger = logger;
             _appSettings = options.Value;
             _clientFactory = clientFactory;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<Food>> GetMenuItemsAsync()
@@ -38,6 +45,25 @@ namespace PizzastycznieFrontend.ApiHandler
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<IEnumerable<Food>>(jsonResponse);
+        }
+
+        public async Task<bool> PlaceOrderAsync(Order order)
+        {
+            var client = _clientFactory.CreateClient();
+            var json = JsonConvert.SerializeObject(order);
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri($"{_appSettings.HostAddress}/api/order/create"),
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", (string) _cache.Get(AuthenticationDataEnum.Token));
+
+            var response = await client.SendAsync(request);
+
+            return response.IsSuccessStatusCode;
         }
 
         public async Task<AddMenuItemResult> AddMenuItemAsync(Food food)
