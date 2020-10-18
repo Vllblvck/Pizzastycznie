@@ -1,4 +1,4 @@
-﻿namespace PizzastycznieFrontend.Authentication
+﻿namespace PizzastycznieFrontend.Authentication.DTO
 {
     public class UserCredentialsObject
     {

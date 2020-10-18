@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PizzastycznieFrontend
+namespace PizzastycznieFrontend.Forms
 {
     partial class MainForm
     {
@@ -62,6 +62,8 @@ namespace PizzastycznieFrontend
             this.labelPaymentMethod = new System.Windows.Forms.Label();
             this.radioButtonCash = new System.Windows.Forms.RadioButton();
             this.groupBoxPaymentMethod = new System.Windows.Forms.GroupBox();
+            this.buttonOrderHistory = new System.Windows.Forms.Button();
+            this.buttonOrderHistory.Click += new EventHandler(buttonOrderHistory_Click);
             ((System.ComponentModel.ISupportInitialize) (this.foodAmount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize) (this.additiveAmmount)).BeginInit();
             this.groupBoxPaymentMethod.SuspendLayout();
@@ -119,6 +121,7 @@ namespace PizzastycznieFrontend
             this.buttonSignIn.TabIndex = 6;
             this.buttonSignIn.Text = "Sign in";
             this.buttonSignIn.UseVisualStyleBackColor = true;
+            this.buttonSignIn.Click += new System.EventHandler(this.buttonSignIn_Click);
             // 
             // listViewOrder
             // 
@@ -344,12 +347,23 @@ namespace PizzastycznieFrontend
             this.groupBoxPaymentMethod.TabIndex = 37;
             this.groupBoxPaymentMethod.TabStop = false;
             // 
+            // buttonOrderHistory
+            // 
+            this.buttonOrderHistory.Location = new System.Drawing.Point(674, 14);
+            this.buttonOrderHistory.Name = "buttonOrderHistory";
+            this.buttonOrderHistory.Size = new System.Drawing.Size(120, 23);
+            this.buttonOrderHistory.TabIndex = 38;
+            this.buttonOrderHistory.Text = "Order History";
+            this.buttonOrderHistory.UseVisualStyleBackColor = true;
+            this.buttonOrderHistory.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(843, 574);
+            this.Controls.Add(this.buttonOrderHistory);
             this.Controls.Add(this.groupBoxPaymentMethod);
             this.Controls.Add(this.labelPaymentMethod);
             this.Controls.Add(this.labelComments);
@@ -379,6 +393,7 @@ namespace PizzastycznieFrontend
             this.Location = new System.Drawing.Point(15, 15);
             this.MaximizeBox = false;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize) (this.foodAmount)).EndInit();
             ((System.ComponentModel.ISupportInitialize) (this.additiveAmmount)).EndInit();
@@ -386,6 +401,8 @@ namespace PizzastycznieFrontend
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.Button buttonOrderHistory;
 
         private System.Windows.Forms.GroupBox groupBoxPaymentMethod;
 

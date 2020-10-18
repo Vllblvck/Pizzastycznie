@@ -1,32 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using PizzastycznieFrontend.ApiHandler;
 using PizzastycznieFrontend.ApiHandler.DTO;
+using PizzastycznieFrontend.ApiHandler.DTO.Enums;
 using PizzastycznieFrontend.Authentication;
 
-namespace PizzastycznieFrontend
+namespace PizzastycznieFrontend.Forms
 {
     public partial class MainForm : Form
     {
         private readonly ILogger<MainForm> _logger;
         private readonly IApiHandler _apiHandler;
         private readonly IMemoryCache _cache;
-        
+        private readonly LoginForm _loginForm;
+
         private IEnumerable<Food> _menuItems;
-        private IList<OrderFood> _orderFood = new List<OrderFood>();
-        private IList<OrderAdditive> _orderAdditives = new List<OrderAdditive>();
+        private readonly IList<OrderFood> _orderFood = new List<OrderFood>();
+        private readonly IList<OrderAdditive> _orderAdditives = new List<OrderAdditive>();
         private decimal _totalPrice;
 
-        public MainForm(ILogger<MainForm> logger, IApiHandler apiHandler, IMemoryCache cache)
+        public MainForm(ILogger<MainForm> logger, IApiHandler apiHandler, IMemoryCache cache, LoginForm loginForm)
         {
             _logger = logger;
             _apiHandler = apiHandler;
             _cache = cache;
+            _loginForm = loginForm;
             InitializeComponent();
+        }
+
+        public void HideAuthButtons(bool value)
+        {
+            buttonSignIn.Visible = !value;
+            buttonSignUp.Visible = !value;
+            buttonOrderHistory.Visible = value;
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
@@ -158,21 +170,56 @@ namespace PizzastycznieFrontend
             }
         }
 
-        private void buttonPlaceOrder_Click(object sender, EventArgs e)
+        private async void buttonPlaceOrder_Click(object sender, EventArgs e)
         {
-            var token = _cache.Get(AuthenticationDataEnum.Token);
+            var token = _cache.Get(UserDataEnum.Token);
 
             if (token == null)
             {
-                
+                _loginForm.ShowDialog(this);
+                return;
             }
-            //TODO actually send request
-            var order = new Order();
-            order.Comments = richTextBoxComments.Text;
-            order.DeliveryAddress = textBoxAddress.Text;
-            order.CustomerPhone = textBoxPhoneNumber.Text;
-            order.OrderFood = _orderFood;
-            order.OrderAdditives = _orderAdditives;
+
+            var order = new Order
+            {
+                UserId = (long) _cache.Get(UserDataEnum.UserId),
+                Comments = richTextBoxComments.Text,
+                DeliveryAddress = textBoxAddress.Text,
+                CustomerPhone = textBoxPhoneNumber.Text,
+                OrderFood = _orderFood,
+                OrderAdditives = _orderAdditives,
+                PaymentMethod = radioButtonCard.Checked ? PaymentMethod.Card : PaymentMethod.Cash,
+                Status = "placed",
+                StatusDate = DateTime.Now,
+                TotalPrice = _totalPrice
+            };
+
+            var result = await _apiHandler.PlaceOrderAsync(order);
+
+            if (result)
+            {
+                MessageBox.Show("Order was successfully placed", "Success", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("We couldn't place the order :(", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void buttonSignIn_Click(object sender, EventArgs e)
+        {
+            _loginForm.ShowDialog(this);
+        }
+
+        //TODO actual order history form
+        private async void buttonOrderHistory_Click(object sender, EventArgs e)
+        {
+            var orderHistory = await _apiHandler.GetOrderHistoryAsync((string) _cache.Get(UserDataEnum.Email));
+
+            var json = JsonConvert.SerializeObject(orderHistory);
+
+            MessageBox.Show(json, "Order history", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

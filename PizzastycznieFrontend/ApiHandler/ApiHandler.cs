@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PizzastycznieFrontend.ApiHandler.DTO;
-using PizzastycznieFrontend.ApiHandler.DTO.Enums;
 using PizzastycznieFrontend.Authentication;
 
 namespace PizzastycznieFrontend.ApiHandler
@@ -59,31 +57,30 @@ namespace PizzastycznieFrontend.ApiHandler
             };
 
             request.Headers.Authorization =
-                new AuthenticationHeaderValue("Bearer", (string) _cache.Get(AuthenticationDataEnum.Token));
+                new AuthenticationHeaderValue("Bearer", (string) _cache.Get(UserDataEnum.Token));
 
             var response = await client.SendAsync(request);
 
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<AddMenuItemResult> AddMenuItemAsync(Food food)
+        public async Task<IEnumerable<Order>> GetOrderHistoryAsync(string email)
         {
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{_appSettings.HostAddress}/api/food/add");
-            var response = await client.SendAsync(request);
-
-            return response.StatusCode switch
+            var request = new HttpRequestMessage
             {
-                HttpStatusCode.Created => AddMenuItemResult.Success,
-                HttpStatusCode.Conflict => AddMenuItemResult.Conflict,
-                HttpStatusCode.InternalServerError => AddMenuItemResult.ServerError,
-                _ => AddMenuItemResult.ServerError
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"{_appSettings.HostAddress}/api/order/all?email={email}")
             };
-        }
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", (string) _cache.Get(UserDataEnum.Token));
 
-        public Task DeleteMenuItemAsync(string foodName)
-        {
-            throw new System.NotImplementedException();
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<IEnumerable<Order>>(responseJson);
         }
     }
 }

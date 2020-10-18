@@ -87,7 +87,7 @@ namespace Pizzastycznie.Database.Repositories
 
                     result = new SelectUserObject
                     {
-                        Id = sqlReader.GetString("id"),
+                        Id = sqlReader.GetInt64("id"),
                         Email = sqlReader.GetString("email"),
                         Name = sqlReader.GetString("name"),
                         IsAdmin = sqlReader.GetBoolean("admin"),

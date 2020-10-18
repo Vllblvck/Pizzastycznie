@@ -25,4 +25,13 @@
         <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Forms\LoginForm.cs">
+        <SubType>Form</SubType>
+      </Compile>
+      <Compile Update="Forms\MainForm.cs">
+        <SubType>Form</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>

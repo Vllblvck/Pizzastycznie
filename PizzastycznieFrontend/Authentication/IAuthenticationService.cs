@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using PizzastycznieFrontend.Authentication.DTO;
 
 namespace PizzastycznieFrontend.Authentication
 {
     public interface IAuthenticationService
     {
-        public Task<bool> Authenticate(UserCredentialsObject userCredentials);
+        public Task<bool> AuthenticateAsync(UserCredentialsObject userCredentials);
     }
 }

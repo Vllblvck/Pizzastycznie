@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS Users
     email         VARCHAR(150) UNIQUE NOT NULL,
     name          NVARCHAR(32)        NOT NULL,
     password_hash VARCHAR(150)        NOT NULL,
-    salt VARCHAR(150) NOT NULL,
+    salt          VARCHAR(150)        NOT NULL,
     address       NVARCHAR(120),
     phone_number  VARCHAR(15),
     admin         BOOL                NOT NULL
@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS Food
 CREATE TABLE IF NOT EXISTS FoodAdditives
 (
     id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    food_id       BIGINT UNSIGNED      NOT NULL,
-    additive_name NVARCHAR(100)        NOT NULL,
-    price         DECIMAL(4, 2)        NOT NULL,
+    food_id       BIGINT UNSIGNED NOT NULL,
+    additive_name NVARCHAR(100)   NOT NULL,
+    price         DECIMAL(4, 2)   NOT NULL,
     CONSTRAINT fk_food_id FOREIGN KEY (food_id) REFERENCES Food (id) ON DELETE CASCADE
 );
 
@@ -61,5 +61,5 @@ CREATE TABLE IF NOT EXISTS OrderAdditives
     additive_id BIGINT UNSIGNED NOT NULL,
     amount      INT             NOT NULL,
     CONSTRAINT fk_additive_order FOREIGN KEY (order_id) REFERENCES Orders (id) ON DELETE CASCADE,
-    CONSTRAINT fk_additive_details FOREIGN KEY (additive_id) REFERENCES FoodAdditives (id) ON DELETE CASCADE 
+    CONSTRAINT fk_additive_details FOREIGN KEY (additive_id) REFERENCES FoodAdditives (id) ON DELETE CASCADE
 );
