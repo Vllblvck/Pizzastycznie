@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PizzastycznieFrontend.ApiHandler;
+using PizzastycznieFrontend.Authentication;
+using PizzastycznieFrontend.Forms;
 
 namespace PizzastycznieFrontend
 {
@@ -42,9 +44,13 @@ namespace PizzastycznieFrontend
                 builder.AddDebug();
             });
 
+            services.AddMemoryCache();
             services.AddHttpClient();
+
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IApiHandler, ApiHandler.ApiHandler>();
             services.AddScoped<MainForm>();
+            services.AddScoped<LoginForm>();
         }
     }
 }

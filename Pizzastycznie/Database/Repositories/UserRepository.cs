@@ -124,7 +124,7 @@ namespace Pizzastycznie.Database.Repositories
 
                     result = new SelectUserObject
                     {
-                        Id = sqlReader.GetString(DbTables.Users.Id),
+                        Id = sqlReader.GetInt64(DbTables.Users.Id),
                         Email = sqlReader.GetString(DbTables.Users.Email),
                         Name = sqlReader.GetString(DbTables.Users.Name),
                         IsAdmin = sqlReader.GetBoolean(DbTables.Users.Admin),
@@ -132,6 +132,7 @@ namespace Pizzastycznie.Database.Repositories
                         Address = await sqlReader.IsDBNullAsync(addressOrdinal)
                             ? null
                             : sqlReader.GetString(DbTables.Users.Address),
+
                         PhoneNumber = await sqlReader.IsDBNullAsync(phoneNumberOrdinal)
                             ? null
                             : sqlReader.GetString(DbTables.Users.PhoneNumber)

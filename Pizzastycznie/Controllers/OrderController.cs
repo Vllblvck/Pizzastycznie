@@ -45,7 +45,7 @@ namespace Pizzastycznie.Controllers
                 .FirstOrDefault();
 
             _logger.LogInformation("Sending email to user");
-            await _mailService.SendEmailAsync(userEmail, "", "");
+            await _mailService.SendEmailAsync(userEmail, "Order", "You have ordered food");
 
             return StatusCode((int) HttpStatusCode.Created);
         }

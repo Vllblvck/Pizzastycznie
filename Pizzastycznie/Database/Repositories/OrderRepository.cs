@@ -87,12 +87,6 @@ namespace Pizzastycznie.Database.Repositories
                         DbType = DbType.Decimal,
                         Value = order.TotalPrice
                     },
-                    new MySqlParameter
-                    {
-                        ParameterName = DbProcedures.InsertOrder.Parameters.SelfPickup,
-                        DbType = DbType.Boolean,
-                        Value = order.SelfPickup
-                    }
                 });
 
                 _logger.LogInformation("Inserting order into database");
@@ -113,8 +107,10 @@ namespace Pizzastycznie.Database.Repositories
 
                 _logger.LogInformation("Preparing sql command to insert order food");
                 sqlCmd.CommandText = DbProcedures.InsertOrderFood.ProcedureName;
+
                 foreach (var food in order.OrderFood)
                 {
+                    sqlCmd.CommandText = "InsertOrderFood";
                     sqlCmd.Parameters.Clear();
                     sqlCmd.Parameters.AddRange(new[]
                     {
@@ -137,6 +133,7 @@ namespace Pizzastycznie.Database.Repositories
                             Value = food.Amount
                         },
                     });
+
                     _logger.LogInformation("Inserting order food");
                     await sqlCmd.ExecuteNonQueryAsync();
                 }
@@ -230,7 +227,6 @@ namespace Pizzastycznie.Database.Repositories
                             DeliveryAddress = sqlReader.GetString(DbTables.Orders.DeliveryAddress),
                             PaymentMethod = (PaymentMethod) sqlReader.GetInt32(DbTables.Orders.PaymentMethod),
                             TotalPrice = sqlReader.GetDecimal(DbTables.Orders.TotalPrice),
-                            SelfPickup = sqlReader.GetBoolean(DbTables.Orders.SelfPickup),
 
                             Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
                                 ? null
@@ -330,7 +326,6 @@ namespace Pizzastycznie.Database.Repositories
                             DeliveryAddress = sqlReader.GetString(DbTables.Orders.DeliveryAddress),
                             PaymentMethod = (PaymentMethod) sqlReader.GetInt32(DbTables.Orders.PaymentMethod),
                             TotalPrice = sqlReader.GetDecimal(DbTables.Orders.TotalPrice),
-                            SelfPickup = sqlReader.GetBoolean(DbTables.Orders.SelfPickup),
 
                             Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
                                 ? null

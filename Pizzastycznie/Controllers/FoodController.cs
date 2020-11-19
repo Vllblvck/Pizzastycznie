@@ -31,7 +31,7 @@ namespace Pizzastycznie.Controllers
             var duplicate = await _foodRepository.SelectFoodAsync(food.Name);
 
             if (duplicate != null)
-                return BadRequest("Food with this name already exists");
+                return Conflict("Food with this name already exists");
             
             _logger.LogInformation("Inserting food to database");
             var result = await _foodRepository.InsertFoodAsync(food);

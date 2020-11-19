@@ -1,11 +1,10 @@
 CREATE PROCEDURE InsertOrder(UserId BIGINT, OrderComments NVARCHAR(150), StatusDate DATETIME, OrderStatus NVARCHAR(15),
                              CustomerPhone VARCHAR(15), DeliveryAddress NVARCHAR(120), PaymentMethod INT,
-                             TotalPrice DECIMAL(4, 2), SelfPickup BOOL)
+                             TotalPrice DECIMAL(4, 2))
 BEGIN
     INSERT INTO Orders (user_id, order_comments, status_date, order_status, customer_phone, delivery_address,
-                        payment_method, total_price, self_pickup)
-    VALUES (UserId, OrderComments, StatusDate, OrderStatus, CustomerPhone, DeliveryAddress, PaymentMethod, TotalPrice,
-            SelfPickup);
+                        payment_method, total_price)
+    VALUES (UserId, OrderComments, StatusDate, OrderStatus, CustomerPhone, DeliveryAddress, PaymentMethod, TotalPrice);
 END;
 
 CREATE PROCEDURE InsertOrderFood(OrderId BIGINT, FoodName NVARCHAR(100), Amount INT)
@@ -18,7 +17,7 @@ END;
 
 CREATE PROCEDURE InsertOrderAdditive(OrderId BIGINT, AdditiveName NVARCHAR(100), Amount INT)
 BEGIN
-    SET @AdditiveId = (SELECT id FROM FoodAdditives WHERE additive_name = AdditiveName);
+    SET @AdditiveId = (SELECT id FROM FoodAdditives WHERE additive_name = AdditiveName LIMIT 1);
 
     INSERT INTO OrderAdditives(order_id, additive_id, amount)
     VALUES (OrderID, @AdditiveId, Amount);
@@ -40,8 +39,7 @@ BEGIN
            customer_phone,
            delivery_address,
            payment_method,
-           total_price,
-           self_pickup
+           total_price
     FROM Orders
     WHERE user_id = @UserId;
 END;
@@ -68,10 +66,9 @@ BEGIN
            customer_phone,
            delivery_address,
            payment_method,
-           total_price,
-           self_pickup
+           total_price
     FROM Orders
-    WHERE user_id = @UserId;
+    WHERE order_status != 'delivered';
 END;
 
 CREATE PROCEDURE UpdateOrderStatus(OrderId BIGINT, OrderStatus NVARCHAR(15))
