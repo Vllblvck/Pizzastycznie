@@ -36,25 +36,63 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Preparing sql command to insert order");
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "InsertOrder";
+                sqlCmd.CommandText = DbProcedures.InsertOrder.ProcedureName;
                 sqlCmd.Parameters.AddRange(new[]
                 {
-                    new MySqlParameter {ParameterName = "UserId", DbType = DbType.Int64, Value = order.UserId},
                     new MySqlParameter
-                        {ParameterName = "OrderComments", DbType = DbType.String, Value = order.Comments},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.UserId,
+                        DbType = DbType.Int64,
+                        Value = order.UserId
+                    },
                     new MySqlParameter
-                        {ParameterName = "StatusDate", DbType = DbType.DateTime, Value = order.StatusDate},
-                    new MySqlParameter {ParameterName = "OrderStatus", DbType = DbType.String, Value = order.Status},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.OrderComments,
+                        DbType = DbType.String,
+                        Value = order.Comments
+                    },
                     new MySqlParameter
-                        {ParameterName = "CustomerPhone", DbType = DbType.String, Value = order.CustomerPhone},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.StatusDate,
+                        DbType = DbType.DateTime,
+                        Value = order.StatusDate
+                    },
                     new MySqlParameter
-                        {ParameterName = "DeliveryAddress", DbType = DbType.String, Value = order.DeliveryAddress},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.OrderStatus,
+                        DbType = DbType.String,
+                        Value = order.Status
+                    },
                     new MySqlParameter
-                        {ParameterName = "PaymentMethod", DbType = DbType.Int32, Value = order.PaymentMethod},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.CustomerPhone,
+                        DbType = DbType.String,
+                        Value = order.CustomerPhone
+                    },
                     new MySqlParameter
-                        {ParameterName = "TotalPrice", DbType = DbType.Decimal, Value = order.TotalPrice},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.DeliveryAddress,
+                        DbType = DbType.String,
+                        Value = order.DeliveryAddress
+                    },
                     new MySqlParameter
-                        {ParameterName = "SelfPickup", DbType = DbType.Boolean, Value = order.SelfPickup},
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.PaymentMethod,
+                        DbType = DbType.Int32,
+                        Value = order.PaymentMethod
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.TotalPrice,
+                        DbType = DbType.Decimal,
+                        Value = order.TotalPrice
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertOrder.Parameters.SelfPickup,
+                        DbType = DbType.Boolean,
+                        Value = order.SelfPickup
+                    }
                 });
 
                 _logger.LogInformation("Inserting order into database");
@@ -62,44 +100,72 @@ namespace Pizzastycznie.Database.Repositories
 
                 _logger.LogInformation("Selecting last insert id");
                 long orderId = 0;
-                sqlCmd.CommandText = "SelectLastInsertId";
+                sqlCmd.CommandText = DbProcedures.SelectLastInsertId.ProcedureName;
                 await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
                 {
                     while (await sqlReader.ReadAsync())
                     {
-                        orderId = sqlReader.GetInt64("LAST_INSERT_ID()");
+                        orderId = sqlReader.GetInt64(DbTables.LastInsertId);
                     }
                 }
                 // For some reason this doesn't work :(
                 // var orderId = sqlCmd.LastInsertedId;
 
                 _logger.LogInformation("Preparing sql command to insert order food");
-                sqlCmd.CommandText = "InsertOrderFood";
+                sqlCmd.CommandText = DbProcedures.InsertOrderFood.ProcedureName;
                 foreach (var food in order.OrderFood)
                 {
                     sqlCmd.Parameters.Clear();
                     sqlCmd.Parameters.AddRange(new[]
                     {
-                        new MySqlParameter {ParameterName = "OrderId", DbType = DbType.Int64, Value = orderId},
-                        new MySqlParameter {ParameterName = "FoodName", DbType = DbType.String, Value = food.Name},
-                        new MySqlParameter {ParameterName = "Amount", DbType = DbType.Int32, Value = food.Amount},
+                        new MySqlParameter
+                        {
+                            ParameterName = DbProcedures.InsertOrderFood.Parameters.OrderId,
+                            DbType = DbType.Int64,
+                            Value = orderId
+                        },
+                        new MySqlParameter
+                        {
+                            ParameterName = DbProcedures.InsertOrderFood.Parameters.FoodName,
+                            DbType = DbType.String,
+                            Value = food.Name
+                        },
+                        new MySqlParameter
+                        {
+                            ParameterName = DbProcedures.InsertOrderFood.Parameters.Amount,
+                            DbType = DbType.Int32,
+                            Value = food.Amount
+                        },
                     });
-
                     _logger.LogInformation("Inserting order food");
                     await sqlCmd.ExecuteNonQueryAsync();
                 }
 
                 _logger.LogInformation("Preparing sql command to insert order additives");
-                sqlCmd.CommandText = "InsertOrderAdditive";
+                sqlCmd.CommandText = DbProcedures.InsertOrderAdditive.ProcedureName;
                 foreach (var additive in order.OrderAdditives)
                 {
                     sqlCmd.Parameters.Clear();
                     sqlCmd.Parameters.AddRange(new[]
                     {
-                        new MySqlParameter {ParameterName = "OrderId", DbType = DbType.Int64, Value = orderId},
                         new MySqlParameter
-                            {ParameterName = "AdditiveName", DbType = DbType.String, Value = additive.Name},
-                        new MySqlParameter {ParameterName = "Amount", DbType = DbType.Int32, Value = additive.Amount}
+                        {
+                            ParameterName = DbProcedures.InsertOrderAdditive.Parameters.OrderId,
+                            DbType = DbType.Int64,
+                            Value = orderId
+                        },
+                        new MySqlParameter
+                        {
+                            ParameterName = DbProcedures.InsertOrderAdditive.Parameters.AdditiveName,
+                            DbType = DbType.String,
+                            Value = additive.Name
+                        },
+                        new MySqlParameter
+                        {
+                            ParameterName = DbProcedures.InsertOrderAdditive.Parameters.Amount,
+                            DbType = DbType.Int32,
+                            Value = additive.Amount
+                        }
                     });
 
                     _logger.LogInformation("Inserting order additives");
@@ -140,31 +206,35 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Preparing sql command to select orders");
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "SelectOrdersForUser";
+                sqlCmd.CommandText = DbProcedures.SelectOrdersForUser.ProcedureName;
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "Email", DbType = DbType.String, Value = email});
+                {
+                    ParameterName = DbProcedures.SelectOrdersForUser.Parameters.Email,
+                    DbType = DbType.String,
+                    Value = email
+                });
 
                 _logger.LogInformation("Selecting orders");
                 await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
                 {
                     while (await sqlReader.ReadAsync())
                     {
-                        var commentsOrdinal = sqlReader.GetOrdinal("order_comments");
+                        var commentsOrdinal = sqlReader.GetOrdinal(DbTables.Orders.OrderComments);
 
                         result.Add(new Order
                         {
-                            Id = sqlReader.GetInt64("id"),
-                            StatusDate = sqlReader.GetDateTime("status_date"),
-                            Status = sqlReader.GetString("order_status"),
-                            CustomerPhone = sqlReader.GetString("customer_phone"),
-                            DeliveryAddress = sqlReader.GetString("customer_phone"),
-                            PaymentMethod = (PaymentMethod) sqlReader.GetInt32("payment_method"),
-                            TotalPrice = sqlReader.GetDecimal("total_price"),
-                            SelfPickup = sqlReader.GetBoolean("self_pickup"),
+                            Id = sqlReader.GetInt64(DbTables.Orders.OrderId),
+                            StatusDate = sqlReader.GetDateTime(DbTables.Orders.StatusDate),
+                            Status = sqlReader.GetString(DbTables.Orders.OrderStatus),
+                            CustomerPhone = sqlReader.GetString(DbTables.Orders.CustomerPhone),
+                            DeliveryAddress = sqlReader.GetString(DbTables.Orders.DeliveryAddress),
+                            PaymentMethod = (PaymentMethod) sqlReader.GetInt32(DbTables.Orders.PaymentMethod),
+                            TotalPrice = sqlReader.GetDecimal(DbTables.Orders.TotalPrice),
+                            SelfPickup = sqlReader.GetBoolean(DbTables.Orders.SelfPickup),
 
                             Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
                                 ? null
-                                : sqlReader.GetString("order_comments")
+                                : sqlReader.GetString(DbTables.Orders.OrderComments)
                         });
                     }
                 }
@@ -175,10 +245,14 @@ namespace Pizzastycznie.Database.Repositories
                     var orderAdditives = new List<OrderAdditive>();
 
                     _logger.LogInformation("Preparing sql command to select order content");
-                    sqlCmd.CommandText = "SelectOrderContent";
+                    sqlCmd.CommandText = DbProcedures.SelectOrderContent.ProcedureName;
                     sqlCmd.Parameters.Clear();
                     sqlCmd.Parameters.Add(new MySqlParameter
-                        {ParameterName = "OrderId", DbType = DbType.Int64, Value = order.Id});
+                    {
+                        ParameterName = DbProcedures.SelectOrderContent.Parameters.OrderId,
+                        DbType = DbType.Int64,
+                        Value = order.Id
+                    });
 
                     _logger.LogInformation("Selecting order content");
                     await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
@@ -187,8 +261,8 @@ namespace Pizzastycznie.Database.Repositories
                         {
                             orderFood.Add(new OrderFood
                             {
-                                Name = sqlReader.GetString("food_name"),
-                                Amount = sqlReader.GetInt32("amount")
+                                Name = sqlReader.GetString(DbTables.OrderFood.FoodName),
+                                Amount = sqlReader.GetInt32(DbTables.OrderFood.Amount)
                             });
                         }
 
@@ -198,8 +272,8 @@ namespace Pizzastycznie.Database.Repositories
                         {
                             orderAdditives.Add(new OrderAdditive
                             {
-                                Name = sqlReader.GetString("additive_name"),
-                                Amount = sqlReader.GetInt32("amount")
+                                Name = sqlReader.GetString(DbTables.OrderAdditives.AdditiveName),
+                                Amount = sqlReader.GetInt32(DbTables.OrderAdditives.Amount)
                             });
                         }
                     }
@@ -238,29 +312,29 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "SelectPendingOrders";
+                sqlCmd.CommandText = DbProcedures.SelectPendingOrders.ProcedureName;
 
                 _logger.LogInformation("Selecting orders");
                 await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
                 {
                     while (await sqlReader.ReadAsync())
                     {
-                        var commentsOrdinal = sqlReader.GetOrdinal("order_comments");
+                        var commentsOrdinal = sqlReader.GetOrdinal(DbTables.Orders.OrderComments);
 
                         result.Add(new Order
                         {
-                            Id = sqlReader.GetInt64("id"),
-                            StatusDate = sqlReader.GetDateTime("status_date"),
-                            Status = sqlReader.GetString("order_status"),
-                            CustomerPhone = sqlReader.GetString("customer_phone"),
-                            DeliveryAddress = sqlReader.GetString("customer_phone"),
-                            PaymentMethod = (PaymentMethod) sqlReader.GetInt32("payment_method"),
-                            TotalPrice = sqlReader.GetDecimal("total_price"),
-                            SelfPickup = sqlReader.GetBoolean("self_pickup"),
+                            Id = sqlReader.GetInt64(DbTables.Orders.OrderId),
+                            StatusDate = sqlReader.GetDateTime(DbTables.Orders.StatusDate),
+                            Status = sqlReader.GetString(DbTables.Orders.OrderStatus),
+                            CustomerPhone = sqlReader.GetString(DbTables.Orders.CustomerPhone),
+                            DeliveryAddress = sqlReader.GetString(DbTables.Orders.DeliveryAddress),
+                            PaymentMethod = (PaymentMethod) sqlReader.GetInt32(DbTables.Orders.PaymentMethod),
+                            TotalPrice = sqlReader.GetDecimal(DbTables.Orders.TotalPrice),
+                            SelfPickup = sqlReader.GetBoolean(DbTables.Orders.SelfPickup),
 
                             Comments = await sqlReader.IsDBNullAsync(commentsOrdinal)
                                 ? null
-                                : sqlReader.GetString("order_comments")
+                                : sqlReader.GetString(DbTables.Orders.OrderComments)
                         });
                     }
                 }
@@ -271,10 +345,14 @@ namespace Pizzastycznie.Database.Repositories
                     var orderAdditives = new List<OrderAdditive>();
 
                     _logger.LogInformation("Preparing sql command to select order content");
-                    sqlCmd.CommandText = "SelectOrderContent";
+                    sqlCmd.CommandText = DbProcedures.SelectOrderContent.ProcedureName;
                     sqlCmd.Parameters.Clear();
                     sqlCmd.Parameters.Add(new MySqlParameter
-                        {ParameterName = "OrderId", DbType = DbType.Int64, Value = order.Id});
+                    {
+                        ParameterName = DbProcedures.SelectOrderContent.Parameters.OrderId,
+                        DbType = DbType.Int64,
+                        Value = order.Id
+                    });
 
                     _logger.LogInformation("Selecting order content");
                     await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
@@ -283,8 +361,8 @@ namespace Pizzastycznie.Database.Repositories
                         {
                             orderFood.Add(new OrderFood
                             {
-                                Name = sqlReader.GetString("food_name"),
-                                Amount = sqlReader.GetInt32("amount")
+                                Name = sqlReader.GetString(DbTables.OrderFood.FoodName),
+                                Amount = sqlReader.GetInt32(DbTables.OrderFood.Amount)
                             });
                         }
 
@@ -294,8 +372,8 @@ namespace Pizzastycznie.Database.Repositories
                         {
                             orderAdditives.Add(new OrderAdditive
                             {
-                                Name = sqlReader.GetString("additive_name"),
-                                Amount = sqlReader.GetInt32("amount")
+                                Name = sqlReader.GetString(DbTables.OrderAdditives.AdditiveName),
+                                Amount = sqlReader.GetInt32(DbTables.OrderAdditives.Amount)
                             });
                         }
                     }
@@ -327,11 +405,21 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Preparing sql command to update order status");
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "UpdateOrderStatus";
+                sqlCmd.CommandText = DbProcedures.UpdateOrderStatus.ProcedureName;
                 sqlCmd.Parameters.AddRange(new[]
                 {
-                    new MySqlParameter {ParameterName = "OrderId", DbType = DbType.Int64, Value = orderId},
-                    new MySqlParameter {ParameterName = "OrderStatus", DbType = DbType.String, Value = status}, 
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.UpdateOrderStatus.Parameters.OrderId,
+                        DbType = DbType.Int64,
+                        Value = orderId
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.UpdateOrderStatus.Parameters.OrderStatus,
+                        DbType = DbType.String,
+                        Value = status
+                    },
                 });
 
                 _logger.LogInformation("Updating order status");

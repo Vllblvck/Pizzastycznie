@@ -7,7 +7,6 @@ using MySql.Data.MySqlClient;
 using Pizzastycznie.Database.DTO;
 using Pizzastycznie.Database.DTO.Enums;
 using Pizzastycznie.Database.Repositories.Interfaces;
-using Ubiety.Dns.Core.Records.NotUsed;
 
 namespace Pizzastycznie.Database.Repositories
 {
@@ -35,12 +34,27 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "InsertFood";
+                sqlCmd.CommandText = DbProcedures.InsertFood.ProcedureName;
                 sqlCmd.Parameters.AddRange(new[]
                 {
-                    new MySqlParameter {ParameterName = "Name", DbType = DbType.String, Value = food.Name},
-                    new MySqlParameter {ParameterName = "Type", DbType = DbType.Int32, Value = (int) food.Type},
-                    new MySqlParameter {ParameterName = "Price", DbType = DbType.Currency, Value = food.Price},
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertFood.Parameters.FoodName,
+                        DbType = DbType.String,
+                        Value = food.Name
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertFood.Parameters.FoodType,
+                        DbType = DbType.Int32,
+                        Value = (int) food.Type
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertFood.Parameters.FoodPrice,
+                        DbType = DbType.Currency,
+                        Value = food.Price
+                    }
                 });
 
                 _logger.LogInformation("Inserting food into database");
@@ -48,7 +62,7 @@ namespace Pizzastycznie.Database.Repositories
 
                 if (food.Additives != null)
                 {
-                    sqlCmd.CommandText = "InsertFoodAdditive";
+                    sqlCmd.CommandText = DbProcedures.InsertFoodAdditive.ProcedureName;
                     foreach (var additive in food.Additives)
                     {
                         _logger.LogInformation("Preparing sql command to insert food additive");
@@ -56,11 +70,24 @@ namespace Pizzastycznie.Database.Repositories
                         sqlCmd.Parameters.Clear();
                         sqlCmd.Parameters.AddRange(new[]
                         {
-                            new MySqlParameter {ParameterName = "FoodName", DbType = DbType.String, Value = food.Name},
                             new MySqlParameter
-                                {ParameterName = "AdditiveName", DbType = DbType.String, Value = additive.Name},
+                            {
+                                ParameterName = DbProcedures.InsertFoodAdditive.Parameters.FoodName,
+                                DbType = DbType.String,
+                                Value = food.Name
+                            },
                             new MySqlParameter
-                                {ParameterName = "Price", DbType = DbType.Decimal, Value = additive.Price},
+                            {
+                                ParameterName = DbProcedures.InsertFoodAdditive.Parameters.AdditiveName,
+                                DbType = DbType.String,
+                                Value = additive.Name
+                            },
+                            new MySqlParameter
+                            {
+                                ParameterName = DbProcedures.InsertFoodAdditive.Parameters.AdditivePrice,
+                                DbType = DbType.Decimal,
+                                Value = additive.Price
+                            }
                         });
 
                         _logger.LogInformation("Inserting food additive into database");
@@ -100,9 +127,13 @@ namespace Pizzastycznie.Database.Repositories
                 _logger.LogInformation("Preparing sql command to select food");
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "SelectFood";
+                sqlCmd.CommandText = DbProcedures.SelectFood.ProcedureName;
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
+                {
+                    ParameterName = DbProcedures.SelectFood.Parameters.FoodName,
+                    DbType = DbType.String,
+                    Value = foodName
+                });
 
                 await using (var sqlReader = await sqlCmd.ExecuteReaderAsync())
                 {
@@ -110,21 +141,25 @@ namespace Pizzastycznie.Database.Repositories
                     {
                         result = new Food
                         {
-                            Name = sqlReader.GetString("food_name"),
-                            Type = (FoodType) sqlReader.GetInt32("food_type"),
-                            Price = sqlReader.GetDecimal("price"),
+                            Name = sqlReader.GetString(DbTables.Food.FoodName),
+                            Type = (FoodType) sqlReader.GetInt32(DbTables.Food.FoodType),
+                            Price = sqlReader.GetDecimal(DbTables.Food.Price)
                         };
                     }
                 }
 
-                sqlCmd.CommandText = "SelectAdditiveForFood";
+                sqlCmd.CommandText = DbProcedures.SelectAdditiveForFood.ProcedureName;
                 var additives = new List<FoodAdditive>();
 
                 _logger.LogInformation("Preparing sql command to select additives for food");
 
                 sqlCmd.Parameters.Clear();
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
+                {
+                    ParameterName = DbProcedures.SelectAdditiveForFood.Parameters.FoodName,
+                    DbType = DbType.String,
+                    Value = foodName
+                });
 
                 _logger.LogInformation("Selecting food additives from database");
 
@@ -134,13 +169,13 @@ namespace Pizzastycznie.Database.Repositories
                     {
                         additives.Add(new FoodAdditive
                         {
-                            Name = sqlReader.GetString("additive_name"),
-                            Price = sqlReader.GetDecimal("price")
+                            Name = sqlReader.GetString(DbTables.FoodAdditives.AdditiveName),
+                            Price = sqlReader.GetDecimal(DbTables.FoodAdditives.Price)
                         });
                     }
                 }
 
-                result.Additives = additives;
+                if (result != null) result.Additives = additives;
             }
             catch (Exception ex)
             {
@@ -168,7 +203,7 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "SelectAllFood";
+                sqlCmd.CommandText = DbProcedures.SelectAllFood.ProcedureName;
 
                 _logger.LogInformation("Selecting food from database");
 
@@ -178,14 +213,14 @@ namespace Pizzastycznie.Database.Repositories
                     {
                         result.Add(new Food
                         {
-                            Name = sqlReader.GetString("food_name"),
-                            Type = (FoodType) sqlReader.GetInt32("food_type"),
-                            Price = sqlReader.GetDecimal("price"),
+                            Name = sqlReader.GetString(DbTables.Food.FoodName),
+                            Type = (FoodType) sqlReader.GetInt32(DbTables.Food.FoodType),
+                            Price = sqlReader.GetDecimal(DbTables.Food.Price),
                         });
                     }
                 }
 
-                sqlCmd.CommandText = "SelectAdditiveForFood";
+                sqlCmd.CommandText = DbProcedures.SelectAdditiveForFood.ProcedureName;
                 foreach (var food in result)
                 {
                     var additives = new List<FoodAdditive>();
@@ -194,7 +229,11 @@ namespace Pizzastycznie.Database.Repositories
 
                     sqlCmd.Parameters.Clear();
                     sqlCmd.Parameters.Add(new MySqlParameter
-                        {ParameterName = "FoodName", DbType = DbType.String, Value = food.Name});
+                    {
+                        ParameterName = DbProcedures.SelectAdditiveForFood.Parameters.FoodName,
+                        DbType = DbType.String,
+                        Value = food.Name
+                    });
 
                     _logger.LogInformation("Selecting food additives from database");
 
@@ -204,8 +243,8 @@ namespace Pizzastycznie.Database.Repositories
                         {
                             additives.Add(new FoodAdditive
                             {
-                                Name = sqlReader.GetString("additive_name"),
-                                Price = sqlReader.GetDecimal("price")
+                                Name = sqlReader.GetString(DbTables.FoodAdditives.AdditiveName),
+                                Price = sqlReader.GetDecimal(DbTables.FoodAdditives.Price)
                             });
                         }
                     }
@@ -240,9 +279,13 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "DeleteFood";
+                sqlCmd.CommandText = DbProcedures.DeleteFood.ProcedureName;
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "FoodName", DbType = DbType.String, Value = foodName});
+                {
+                    ParameterName = DbProcedures.DeleteFood.Parameters.FoodName,
+                    DbType = DbType.String,
+                    Value = foodName
+                });
 
                 _logger.LogInformation("Deleting food from database");
 

@@ -28,18 +28,51 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "InsertUser";
+                sqlCmd.CommandText = DbProcedures.InsertUser.ProcedureName;
                 sqlCmd.Parameters.AddRange(new[]
                 {
-                    new MySqlParameter {ParameterName = "Email", DbType = DbType.String, Value = userObject.Email},
-                    new MySqlParameter {ParameterName = "Name", DbType = DbType.String, Value = userObject.Name},
                     new MySqlParameter
-                        {ParameterName = "PasswordHash", DbType = DbType.String, Value = userObject.PasswordHash},
-                    new MySqlParameter {ParameterName = "Salt", DbType = DbType.String, Value = userObject.Salt},
-                    new MySqlParameter {ParameterName = "Address", DbType = DbType.String, Value = userObject.Address},
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.Email,
+                        DbType = DbType.String,
+                        Value = userObject.Email
+                    },
                     new MySqlParameter
-                        {ParameterName = "PhoneNumber", DbType = DbType.String, Value = userObject.PhoneNumber},
-                    new MySqlParameter {ParameterName = "Admin", DbType = DbType.Boolean, Value = userObject.IsAdmin},
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.Name,
+                        DbType = DbType.String,
+                        Value = userObject.Name
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.PasswordHash,
+                        DbType = DbType.String,
+                        Value = userObject.PasswordHash
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.Salt,
+                        DbType = DbType.String,
+                        Value = userObject.Salt
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.Address,
+                        DbType = DbType.String,
+                        Value = userObject.Address
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.PhoneNumber,
+                        DbType = DbType.String,
+                        Value = userObject.PhoneNumber
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = DbProcedures.InsertUser.Parameters.Admin,
+                        DbType = DbType.Boolean,
+                        Value = userObject.IsAdmin
+                    }
                 });
 
                 _logger.LogInformation("Inserting user into database");
@@ -73,29 +106,35 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "SelectUser";
+                sqlCmd.CommandText = DbProcedures.SelectUser.ProcedureName;
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "UserEmail", DbType = DbType.String, Value = email});
+                {
+                    ParameterName = DbProcedures.SelectUser.Parameters.UserEmail,
+                    DbType = DbType.String,
+                    Value = email
+                });
 
                 _logger.LogInformation("Selecting user from database");
 
                 await using var sqlReader = await sqlCmd.ExecuteReaderAsync();
                 while (await sqlReader.ReadAsync())
                 {
-                    var addressOrdinal = sqlReader.GetOrdinal("address");
-                    var phoneNumberOrdinal = sqlReader.GetOrdinal("phone_number");
+                    var addressOrdinal = sqlReader.GetOrdinal(DbTables.Users.Address);
+                    var phoneNumberOrdinal = sqlReader.GetOrdinal(DbTables.Users.PhoneNumber);
 
                     result = new SelectUserObject
                     {
-                        Id = sqlReader.GetString("id"),
-                        Email = sqlReader.GetString("email"),
-                        Name = sqlReader.GetString("name"),
-                        IsAdmin = sqlReader.GetBoolean("admin"),
-                        
+                        Id = sqlReader.GetString(DbTables.Users.Id),
+                        Email = sqlReader.GetString(DbTables.Users.Email),
+                        Name = sqlReader.GetString(DbTables.Users.Name),
+                        IsAdmin = sqlReader.GetBoolean(DbTables.Users.Admin),
+
                         Address = await sqlReader.IsDBNullAsync(addressOrdinal)
-                            ? null : sqlReader.GetString("address"),
+                            ? null
+                            : sqlReader.GetString(DbTables.Users.Address),
                         PhoneNumber = await sqlReader.IsDBNullAsync(phoneNumberOrdinal)
-                            ? null : sqlReader.GetString("phone_number")
+                            ? null
+                            : sqlReader.GetString(DbTables.Users.PhoneNumber)
                     };
                 }
             }
@@ -121,9 +160,13 @@ namespace Pizzastycznie.Database.Repositories
 
                 var sqlCmd = _sqlConn.CreateCommand();
                 sqlCmd.CommandType = CommandType.StoredProcedure;
-                sqlCmd.CommandText = "SelectHashAndSalt";
+                sqlCmd.CommandText = DbProcedures.SelectHashAndSalt.ProcedureName;
                 sqlCmd.Parameters.Add(new MySqlParameter
-                    {ParameterName = "Email", DbType = DbType.String, Value = email});
+                {
+                    ParameterName = DbProcedures.SelectHashAndSalt.Parameters.Email,
+                    DbType = DbType.String,
+                    Value = email
+                });
 
                 _logger.LogInformation("Selecting hash and salt from database");
                 await _sqlConn.OpenAsync();
@@ -131,8 +174,8 @@ namespace Pizzastycznie.Database.Repositories
                 await using var sqlReader = await sqlCmd.ExecuteReaderAsync();
                 while (await sqlReader.ReadAsync())
                 {
-                    result.PasswordHash = sqlReader.GetString("password_hash");
-                    result.Salt = sqlReader.GetString("salt");
+                    result.PasswordHash = sqlReader.GetString(DbTables.Users.PasswordHash);
+                    result.Salt = sqlReader.GetString(DbTables.Users.Salt);
                 }
             }
             catch (Exception ex)
